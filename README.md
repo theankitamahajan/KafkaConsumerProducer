@@ -1,6 +1,8 @@
 # KafkaConsumerProducer
 
-A Spring Boot application demonstrating Apache Kafka Producer and Consumer integration using Spring Kafka. Messages are published to a Kafka topic via a REST endpoint and consumed asynchronously by a listener service.
+A Spring Boot application that demonstrates real-time message streaming using Apache Kafka. Messages are published to a Kafka topic through a REST endpoint and consumed asynchronously by a dedicated listener service.
+
+Built with Spring Boot and Spring Kafka.
 
 ---
 
@@ -8,8 +10,8 @@ A Spring Boot application demonstrating Apache Kafka Producer and Consumer integ
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  Spring Boot Application                        │
-│                   (com.emreakin)                                │
+│               Spring Boot Application                           │
+│                (com.ankitamahajan)                              │
 │                                                                 │
 │  [HTTP Client]                                                  │
 │       │                                                         │
@@ -19,29 +21,27 @@ A Spring Boot application demonstrating Apache Kafka Producer and Consumer integ
 │       ▼                │   localhost:9092     │                 │
 │  [Producer Service] ──►│                     │                 │
 │  KafkaTemplate.send()  │  Topic              │                 │
-│                        │  ├── Partition 0    │                 │
-│                        │  └── Partition 1    │                 │
-│                        │                     │──► [Consumer Service]
-│                        │  Zookeeper          │    @KafkaListener
-│                        │  localhost:2181     │         │
-│                        └─────────────────────┘         ▼
-│                                                  [Message Model]
-│  [KafkaConfig] ─────────── configures ──────►   JSON Deserializer
-│  @EnableKafka, Beans                                    │
-│                                                         ▼
-│                                                  [Logger / Output]
+│                        │  ├── Partition 0    │──► [Consumer Service]
+│                        │  └── Partition 1    │    @KafkaListener
+│                        │                     │         │
+│                        │  Zookeeper          │         ▼
+│                        │  localhost:2181     │   [Message Model]
+│                        └─────────────────────┘   JSON Deserializer
+│                                                         │
+│  [KafkaConfig] ── configures ──────────────────►        ▼
+│  @EnableKafka, Beans                             [Logger / Output]
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component overview
 
-| Component | Class | Responsibility |
+| Component | Package | Responsibility |
 |---|---|---|
-| REST Controller | `*Controller.java` | Exposes HTTP endpoints to trigger message production |
-| Producer Service | `*ProducerService.java` | Sends messages to Kafka topic via `KafkaTemplate` |
-| Kafka Config | `KafkaConfig.java` | Configures `ProducerFactory`, `ConsumerFactory`, and listener container |
-| Consumer Service | `*ConsumerService.java` | Listens to Kafka topic using `@KafkaListener` and processes messages |
-| Message Model | `*.java` (model/dto) | POJO representing the Kafka message payload (JSON) |
+| REST Controller | `com.ankitamahajan.controller` | Exposes HTTP endpoints to trigger message production |
+| Producer Service | `com.ankitamahajan.service` | Sends messages to Kafka topic via `KafkaTemplate` |
+| Kafka Config | `com.ankitamahajan.config` | Configures `ProducerFactory`, `ConsumerFactory`, and listener container |
+| Consumer Service | `com.ankitamahajan.service` | Listens to Kafka topic using `@KafkaListener` and processes messages |
+| Message Model | `com.ankitamahajan.model` | POJO representing the Kafka message payload (JSON) |
 
 ---
 
@@ -49,8 +49,8 @@ A Spring Boot application demonstrating Apache Kafka Producer and Consumer integ
 
 - **Java 17+**
 - **Spring Boot 3.x**
-- **Spring Kafka** (`spring-kafka`)
-- **Apache Kafka** (local broker)
+- **Spring Kafka**
+- **Apache Kafka**
 - **Apache Zookeeper**
 - **Maven**
 
@@ -78,7 +78,7 @@ zookeeper-server-start /usr/local/etc/kafka/zookeeper.properties
 kafka-server-start /usr/local/etc/kafka/server.properties
 ```
 
-**Create the Kafka topic** (in a new terminal):
+**Create the Kafka topic:**
 
 ```bash
 kafka-topics --create \
@@ -111,24 +111,24 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-The application starts on `http://localhost:8080` by default.
+The application starts on `http://localhost:8080`.
 
 ---
 
 ## Configuration
 
-Edit `src/main/resources/application.properties` (or `application.yml`) to match your environment:
+`src/main/resources/application.properties`:
 
 ```properties
 # Kafka broker
 spring.kafka.bootstrap-servers=localhost:9092
 
-# Producer settings
+# Producer
 spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
 spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
 
-# Consumer settings
-spring.kafka.consumer.group-id=my-consumer-group
+# Consumer
+spring.kafka.consumer.group-id=ankita-consumer-group
 spring.kafka.consumer.auto-offset-reset=earliest
 spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
 spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
@@ -139,18 +139,18 @@ spring.kafka.consumer.properties.spring.json.trusted.packages=*
 
 ## Usage
 
-**Send a message via REST:**
+**Publish a message:**
 
 ```bash
 curl -X POST http://localhost:8080/api/publish \
   -H "Content-Type: application/json" \
-  -d '{"id": 1, "message": "Hello Kafka!"}'
+  -d '{"id": 1, "message": "Hello from Ankita!"}'
 ```
 
-The consumer will receive the message and log it to the console:
+**Expected console output:**
 
 ```
-Received message: KafkaMessage{id=1, message='Hello Kafka!'}
+Received message: KafkaMessage{id=1, message='Hello from Ankita!'}
 ```
 
 ---
@@ -160,13 +160,15 @@ Received message: KafkaMessage{id=1, message='Hello Kafka!'}
 ```
 KafkaConsumerProducer/
 ├── config/
-│   └── KafkaConfig.java          # Producer/consumer factory beans
-├── src/main/java/com/emreakin/
-│   ├── controller/               # REST endpoints
+│   └── KafkaConfig.java
+├── src/main/java/com/ankitamahajan/
+│   ├── controller/
+│   │   └── MessageController.java
 │   ├── service/
-│   │   ├── ProducerService.java  # KafkaTemplate.send()
-│   │   └── ConsumerService.java  # @KafkaListener
-│   └── model/                    # Message POJO / DTO
+│   │   ├── ProducerService.java
+│   │   └── ConsumerService.java
+│   └── model/
+│       └── KafkaMessage.java
 ├── src/main/resources/
 │   └── application.properties
 └── pom.xml
@@ -177,16 +179,14 @@ KafkaConsumerProducer/
 ## How it works
 
 1. A client sends an HTTP POST request to the REST controller.
-2. The controller delegates to `ProducerService`, which uses `KafkaTemplate` to publish a JSON message to the configured Kafka topic.
-3. The Kafka broker stores the message in one of the topic's partitions.
-4. `ConsumerService` — annotated with `@KafkaListener` — receives the message from the broker and processes it (currently logs it to console).
+2. The controller calls `ProducerService`, which uses `KafkaTemplate` to publish a JSON message to the Kafka topic.
+3. The Kafka broker stores the message across its partitions.
+4. `ConsumerService` — annotated with `@KafkaListener` — picks up the message and processes it.
 5. `KafkaConfig` wires up the serializer, deserializer, consumer group, and listener container factory.
 
 ---
 
 ## Running with Docker (optional)
-
-If you prefer not to install Kafka locally, use Docker Compose:
 
 ```yaml
 # docker-compose.yml
@@ -216,9 +216,10 @@ docker-compose up -d
 
 ---
 
-## Contributing
+## Author
 
-Pull requests are welcome. For major changes, please open an issue first.
+**Ankita Mahajan**
+[github.com/theankitamahajan](https://github.com/theankitamahajan)
 
 ---
 
