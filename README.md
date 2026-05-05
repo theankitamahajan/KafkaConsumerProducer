@@ -1,7 +1,7 @@
 # KafkaConsumerProducer
 
 A Spring Boot application that demonstrates real-time message streaming using Apache Kafka. Messages are published to a Kafka topic through a REST endpoint and consumed asynchronously by a dedicated listener service.
-
+  
 Built with Spring Boot and Spring Kafka.
 
 ---
