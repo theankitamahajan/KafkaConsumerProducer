@@ -9,7 +9,7 @@ Built with Spring Boot and Spring Kafka.
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────┐ 
 │               Spring Boot Application                           │
 │                (com.ankitamahajan)                              │
 │                                                                 │
