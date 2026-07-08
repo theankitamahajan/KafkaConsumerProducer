@@ -4,7 +4,7 @@ A Spring Boot application that demonstrates real-time message streaming using Ap
    
 Built with Spring Boot and Spring Kafka.
 
----
+--- 
 
 ## Architecture
 
