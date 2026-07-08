@@ -5,7 +5,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.0.2</version>
-  </parent>
+  </parent> 
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.emreakin</groupId>
